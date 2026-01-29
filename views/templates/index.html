@@ -101,6 +101,33 @@
                         </div>
                     </div>
 
+                    <div class="zebra-options">
+                        <div class="zebra-header">
+                            <label class="option-label">
+                                <input type="checkbox" id="enableZebra" checked>
+                                Zebra Pattern Protection
+                            </label>
+                            <span class="zebra-info">Integrates semantic confusion patterns</span>
+                        </div>
+                        <div class="zebra-controls" id="zebraControls">
+                            <div class="zebra-slider">
+                                <label>Density</label>
+                                <input type="range" id="zebraSpacing" min="30" max="100" value="50">
+                                <span id="zebraSpacingValue">50</span>
+                            </div>
+                            <div class="zebra-slider">
+                                <label>Size</label>
+                                <input type="range" id="zebraSize" min="15" max="60" value="30">
+                                <span id="zebraSizeValue">30</span>
+                            </div>
+                            <div class="zebra-slider">
+                                <label>Opacity</label>
+                                <input type="range" id="zebraOpacity" min="0" max="100" value="80">
+                                <span id="zebraOpacityValue">80%</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="preview-watermark" id="previewWatermark">
                         <span class="preview-label">Preview:</span>
                         <span class="preview-text" id="previewText">ANTI-DIFFUSION WATERMARK • CONFIDENTIAL DOCUMENT</span>
@@ -115,7 +142,7 @@
                             Processing
                         </span>
                     </button>
-                    <p class="tool-note">Dual protection: visible watermark + invisible TrustMark</p>
+                    <p class="tool-note">Triple protection: zebra pattern + visible watermark + TrustMark</p>
                 </div>
 
                 <div class="processing" id="processing">
@@ -134,6 +161,7 @@
                     <div class="result-info">
                         <p class="result-title">Protection applied</p>
                         <ul class="result-features">
+                            <li id="zebraStatus">Zebra pattern integration</li>
                             <li>Semantic steering watermark</li>
                             <li>Chaos noise layer</li>
                             <li id="trustmarkStatus">TrustMark invisible encoding</li>

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('downloadBtn');
     const resetBtn = document.getElementById('resetBtn');
     const trustmarkStatus = document.getElementById('trustmarkStatus');
+    const zebraStatus = document.getElementById('zebraStatus');
     
     // Watermark customization elements
     const typeButtons = document.getElementById('typeButtons');
@@ -25,11 +26,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewText = document.getElementById('previewText');
     const watermarkOptions = document.getElementById('watermarkOptions');
 
+    // Zebra controls
+    const enableZebra = document.getElementById('enableZebra');
+    const zebraControls = document.getElementById('zebraControls');
+    const zebraSpacing = document.getElementById('zebraSpacing');
+    const zebraSize = document.getElementById('zebraSize');
+    const zebraOpacity = document.getElementById('zebraOpacity');
+    const zebraSpacingValue = document.getElementById('zebraSpacingValue');
+    const zebraSizeValue = document.getElementById('zebraSizeValue');
+    const zebraOpacityValue = document.getElementById('zebraOpacityValue');
+
     let selectedFile = null;
     let resultData = null;
     let selectedDocumentType = 'default';
 
-    // Document type presets (must match backend)
+    // Document type presets
     const documentPresets = {
         'default': {
             watermark: 'ANTI-DIFFUSION WATERMARK • CONFIDENTIAL DOCUMENT\nSEMANTIC ENTANGLEMENT ENABLED',
@@ -68,25 +79,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Zebra controls handlers
+    if (enableZebra) {
+        enableZebra.addEventListener('change', () => {
+            if (zebraControls) {
+                zebraControls.style.opacity = enableZebra.checked ? '1' : '0.5';
+                zebraControls.style.pointerEvents = enableZebra.checked ? 'auto' : 'none';
+            }
+        });
+    }
+
+    if (zebraSpacing) {
+        zebraSpacing.addEventListener('input', () => {
+            zebraSpacingValue.textContent = zebraSpacing.value;
+        });
+    }
+
+    if (zebraSize) {
+        zebraSize.addEventListener('input', () => {
+            zebraSizeValue.textContent = zebraSize.value;
+        });
+    }
+
+    if (zebraOpacity) {
+        zebraOpacity.addEventListener('input', () => {
+            zebraOpacityValue.textContent = zebraOpacity.value + '%';
+        });
+    }
+
     // Document type selection
     if (typeButtons) {
         typeButtons.addEventListener('click', (e) => {
             const btn = e.target.closest('.type-btn');
             if (!btn) return;
 
-            // Update active state
             typeButtons.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             selectedDocumentType = btn.dataset.type;
 
-            // Show/hide custom fields
             if (selectedDocumentType === 'custom') {
                 customFields.style.display = 'block';
                 updatePreviewFromCustom();
             } else {
                 customFields.style.display = 'none';
-                // Update preview with preset
                 const preset = documentPresets[selectedDocumentType];
                 if (preset) {
                     previewText.textContent = preset.watermark.replace('\n', ' ');
@@ -95,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Update preview when custom fields change
     function updatePreviewFromCustom() {
         const text = customWatermark.value.trim() || 'Your custom watermark text...';
         previewText.textContent = text.replace('\n', ' ');
@@ -186,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const steps = [
             'Analyzing image',
+            'Integrating zebra patterns',
             'Applying semantic watermark',
             'Adding chaos noise',
             'Encoding TrustMark',
@@ -194,9 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('image', selectedFile);
-        
-        // Add watermark customization options
         formData.append('document_type', selectedDocumentType);
+        
+        // Zebra configuration
+        formData.append('enable_zebra', enableZebra ? enableZebra.checked : true);
+        formData.append('zebra_spacing', zebraSpacing ? zebraSpacing.value : 50);
+        formData.append('zebra_size', zebraSize ? zebraSize.value : 30);
+        formData.append('zebra_opacity', zebraOpacity ? (zebraOpacity.value / 100) : 0.8);
         
         if (selectedDocumentType === 'custom') {
             formData.append('custom_watermark', customWatermark ? customWatermark.value : '');
@@ -230,9 +270,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultData = data;
                 resultImg.src = data.preview;
                 
+                // Update status indicators
                 if (!data.trustmark_applied) {
                     trustmarkStatus.textContent = 'TrustMark unavailable';
                     trustmarkStatus.style.opacity = '0.5';
+                } else {
+                    trustmarkStatus.textContent = 'TrustMark invisible encoding';
+                    trustmarkStatus.style.opacity = '1';
+                }
+
+                if (zebraStatus) {
+                    if (!data.zebra_applied) {
+                        zebraStatus.textContent = 'Zebra pattern unavailable';
+                        zebraStatus.style.opacity = '0.5';
+                    } else {
+                        zebraStatus.textContent = 'Zebra pattern integration';
+                        zebraStatus.style.opacity = '1';
+                    }
                 }
 
                 processing.classList.remove('active');

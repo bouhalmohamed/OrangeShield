@@ -2,7 +2,7 @@
 Constantes et presets pour les watermarks.
 """
 
-# Default watermark payloads
+# Payloads par défaut
 DEFAULT_WATERMARK_PAYLOAD = """ANTI-DIFFUSION WATERMARK • CONFIDENTIAL DOCUMENT.
 SEMANTIC ENTANGLEMENT ENABLED.
 """
@@ -13,6 +13,11 @@ shift orientation, and break accurate regeneration.
 """
 
 DEFAULT_TRUSTMARK_SECRET = "OrangeShield Protected Content - Unauthorized use prohibited"
+
+# Paramètres du motif zèbre
+ZEBRA_GRID_SPACING = 50      # Espacement de la grille en pixels
+ZEBRA_SIZE = 30              # Taille des zèbres en pixels
+ZEBRA_OPACITY = 0.8          # Multiplicateur d'opacité (0.0 - 1.0)
 
 # Document type presets
 DOCUMENT_PRESETS = {

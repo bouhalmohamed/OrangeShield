@@ -11,7 +11,15 @@ import os
 from typing import Dict, Tuple, Optional
 from services.watermark_service import WatermarkService
 from utils.file_utils import is_allowed_file
-from utils.constants import DOCUMENT_PRESETS, DEFAULT_WATERMARK_PAYLOAD, DEFAULT_STEERING_PROMPT, DEFAULT_TRUSTMARK_SECRET
+from utils.constants import (
+    DOCUMENT_PRESETS, 
+    DEFAULT_WATERMARK_PAYLOAD, 
+    DEFAULT_STEERING_PROMPT, 
+    DEFAULT_TRUSTMARK_SECRET,
+    ZEBRA_GRID_SPACING,
+    ZEBRA_SIZE,
+    ZEBRA_OPACITY
+)
 from config import Config
 
 
@@ -24,28 +32,28 @@ class WatermarkController:
     def process_watermark_request(self) -> Tuple[Dict, int]:
         """Traite une requête d'application de watermark."""
         try:
-            # Validate file upload
             validation_error = self._validate_upload()
             if validation_error:
                 return validation_error
             
             file = request.files['image']
-            
-            # Get watermark settings from form data
             watermark_config = self._extract_watermark_config()
+            zebra_config = self._extract_zebra_config()
             
-            # Open and process image
             input_image = Image.open(file.stream)
             
-            # Apply dual watermark
-            output_image = self.watermark_service.apply_dual_watermark(
+            # Appliquer la protection complète (zèbre + visible + TrustMark)
+            output_image = self.watermark_service.apply_full_protection(
                 input_image,
                 watermark_text=watermark_config['watermark_text'],
                 steering_prompt=watermark_config['steering_prompt'],
-                trustmark_secret=watermark_config['trustmark_secret']
+                trustmark_secret=watermark_config['trustmark_secret'],
+                enable_zebra=zebra_config['enable_zebra'],
+                zebra_spacing=zebra_config['spacing'],
+                zebra_size=zebra_config['size'],
+                zebra_opacity=zebra_config['opacity']
             )
             
-            # Generate response data
             response_data = self._generate_response_data(
                 output_image,
                 watermark_config['document_type']
@@ -80,9 +88,7 @@ class WatermarkController:
         custom_steering = request.form.get('custom_steering', '').strip()
         custom_trustmark = request.form.get('custom_trustmark', '').strip()
         
-        # Determine watermark settings based on document type
         if document_type == 'custom':
-            # Use custom values, fallback to defaults if empty
             watermark_text = custom_watermark if custom_watermark else DEFAULT_WATERMARK_PAYLOAD
             steering_prompt = custom_steering if custom_steering else DEFAULT_STEERING_PROMPT
             trustmark_secret = custom_trustmark if custom_trustmark else DEFAULT_TRUSTMARK_SECRET
@@ -92,7 +98,6 @@ class WatermarkController:
             steering_prompt = preset['steering']
             trustmark_secret = preset['trustmark']
         else:
-            # Default watermark
             watermark_text = DEFAULT_WATERMARK_PAYLOAD
             steering_prompt = DEFAULT_STEERING_PROMPT
             trustmark_secret = DEFAULT_TRUSTMARK_SECRET
@@ -104,34 +109,62 @@ class WatermarkController:
             'trustmark_secret': trustmark_secret
         }
     
+    def _extract_zebra_config(self) -> Dict:
+        """Extrait la configuration du motif zèbre."""
+        enable_zebra = request.form.get('enable_zebra', 'true').lower() == 'true'
+        
+        try:
+            spacing = int(request.form.get('zebra_spacing', ZEBRA_GRID_SPACING))
+        except ValueError:
+            spacing = ZEBRA_GRID_SPACING
+        
+        try:
+            size = int(request.form.get('zebra_size', ZEBRA_SIZE))
+        except ValueError:
+            size = ZEBRA_SIZE
+        
+        try:
+            opacity = float(request.form.get('zebra_opacity', ZEBRA_OPACITY))
+            opacity = max(0.0, min(1.0, opacity))
+        except ValueError:
+            opacity = ZEBRA_OPACITY
+        
+        return {
+            'enable_zebra': enable_zebra,
+            'spacing': spacing,
+            'size': size,
+            'opacity': opacity
+        }
+    
     def _generate_response_data(
         self,
         output_image: Image.Image,
         document_type: str
     ) -> Dict:
         """Génère les données de réponse avec preview et lien de téléchargement."""
-        # Save to bytes
         img_io = BytesIO()
         output_image.save(img_io, 'JPEG', quality=Config.JPEG_QUALITY)
         img_io.seek(0)
         
-        # Convert to base64 for preview
         img_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
         
-        # Generate unique filename
         unique_id = str(uuid.uuid4())[:8]
         output_filename = f"watermarked_{unique_id}.jpg"
         output_path = os.path.join(Config.OUTPUT_FOLDER, output_filename)
         
-        # Save file
         img_io.seek(0)
         with open(output_path, 'wb') as f:
             f.write(img_io.read())
+        
+        # Statut de protection
+        protection_status = self.watermark_service.get_protection_status()
         
         return {
             'success': True,
             'preview': f'data:image/jpeg;base64,{img_base64}',
             'download_url': f'/download/{output_filename}',
-            'trustmark_applied': self.watermark_service.is_trustmark_available(),
-            'watermark_type': document_type
+            'trustmark_applied': protection_status['trustmark'],
+            'zebra_applied': protection_status['zebra_pattern'],
+            'watermark_type': document_type,
+            'protection_layers': protection_status
         }
