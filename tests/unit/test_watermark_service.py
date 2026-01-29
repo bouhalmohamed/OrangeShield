@@ -21,6 +21,7 @@ class TestWatermarkService:
         
         assert service.image_processor is not None
         assert service.trustmark_service is not None
+        assert service.zebra_service is not None
     
     def test_apply_dual_watermark_defaults(self, test_image):
         """Test dual watermark application with default values."""
@@ -102,6 +103,24 @@ class TestWatermarkService:
         
         result = service.is_trustmark_available()
         assert isinstance(result, bool)
+    
+    def test_is_zebra_available(self):
+        """Test Zebra service availability check."""
+        service = WatermarkService()
+        
+        result = service.is_zebra_available()
+        assert isinstance(result, bool)
+    
+    def test_get_protection_status(self):
+        """Test protection status returns all layers."""
+        service = WatermarkService()
+        
+        status = service.get_protection_status()
+        
+        assert 'visible_watermark' in status
+        assert 'zebra_pattern' in status
+        assert 'trustmark' in status
+        assert status['visible_watermark'] is True
     
     def test_apply_dual_watermark_empty_text(self, test_image):
         """Test dual watermark with empty text."""

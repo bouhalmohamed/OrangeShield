@@ -1,6 +1,6 @@
 # OrangeShield
 
-Application web de protection d'images contre les manipulations par intelligence artificielle, développée dans le cadre d'un stage de 6 mois chez Orange.
+Application web de protection d'images contre les manipulations par intelligence artificielle, développée dans le cadre d'un projet industriel chez Orange.
 
 ## Contexte
 
@@ -34,8 +34,8 @@ TrustMark encode un message invisible dans l'image, permettant de vérifier son 
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/[username]/orangeshield.git
-cd orangeshield
+git clone https://github.com/bouhalmohamed/OrangeShield.git
+cd OrangeShield
 
 # Créer l'environnement virtuel
 python -m venv venv
@@ -155,4 +155,4 @@ pytest tests/unit/test_zebra_service.py -v
 
 ## Auteur
 
-Projet réalisé dans le cadre d'un stage chez Orange.
+Projet réalisé dans le cadre d'un projet industriel chez Orange.
