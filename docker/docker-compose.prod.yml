@@ -1,0 +1,43 @@
+version: '3.8'
+
+# Production configuration
+services:
+  orangep:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: orangep-app-prod
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      # Only mount data directories, not code
+      - ../uploads:/app/uploads:rw
+      - ../outputs:/app/outputs:rw
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=False
+      - PORT=5000
+      - HOST=0.0.0.0
+    restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - orangep-network
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  orangep-network:
+    driver: bridge

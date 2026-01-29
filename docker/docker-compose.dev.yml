@@ -1,0 +1,41 @@
+version: '3.8'
+
+# Development configuration with hot-reload
+services:
+  orangep:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: orangep-app-dev
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      # Mount code for hot-reload
+      - ..:/app
+      # Mount uploads and outputs for persistence
+      - ../uploads:/app/uploads
+      - ../outputs:/app/outputs
+      # Exclude venv and cache from volume
+      - /app/venv
+      - /app/.pytest_cache
+      - /app/htmlcov
+      - /app/__pycache__
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=True
+      - PORT=5000
+      - HOST=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - orangep-network
+
+networks:
+  orangep-network:
+    driver: bridge
