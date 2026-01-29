@@ -1,26 +1,41 @@
 # OrangeShield
 
-Application web de protection d'images contre les manipulations par intelligence artificielle, développée dans le cadre d'un projet industriel chez Orange.
+Application web de protection des documents administratifs contre les manipulations par intelligence artificielle, développée dans le cadre d'un projet industriel chez Orange.
 
-## Contexte
+## Problématique
 
-Avec l'essor des modèles génératifs (Stable Diffusion, DALL-E, Midjourney), la manipulation d'images est devenue triviale. OrangeShield propose une solution de protection multi-couches qui rend les images résistantes aux tentatives de modification par IA.
+### Sécurité des documents administratifs
 
-## Système de Protection
+Les documents administratifs (cartes d'identité, passeports, attestations, certificats) sont des cibles privilégiées pour la fraude documentaire. Traditionnellement, ces documents sont protégés par des watermarks visibles ou invisibles pour garantir leur authenticité.
 
-L'application implémente trois niveaux de protection complémentaires :
+### Menace de l'IA générative
+
+L'émergence des modèles d'IA génératifs (Stable Diffusion, DALL-E, Midjourney) a radicalement changé la donne. Ces outils permettent désormais de :
+- Supprimer des watermarks visibles en quelques secondes
+- Reconstruire des zones masquées de manière réaliste
+- Modifier le contenu de documents tout en préservant leur apparence authentique
+
+### Insuffisance des watermarks traditionnels
+
+Une étude scientifique récente a démontré que les techniques de watermarking conventionnelles sont vulnérables face aux modèles de diffusion. Les chercheurs ont montré que ces modèles peuvent apprendre à identifier et supprimer les patterns de watermark classiques avec un taux de succès élevé, rendant ces protections obsolètes.
+
+**C'est de ce constat qu'est née l'idée d'OrangeShield** : développer une nouvelle approche de protection qui exploite les faiblesses des modèles IA plutôt que de simplement tenter de leur résister.
+
+## Notre approche
+
+OrangeShield implémente une stratégie de protection en trois couches qui rend les documents résistants aux attaques par IA générative.
 
 ### 1. Intégration de Motifs Zèbre
 
-Des silhouettes de zèbres sont intégrées de manière subtile dans l'image. Cette technique exploite la difficulté des modèles de diffusion à gérer des motifs répétitifs complexes, créant une confusion sémantique lors des tentatives de reconstruction.
+Des silhouettes de zèbres sont intégrées de manière subtile dans le document. Cette technique exploite une faiblesse connue des modèles de diffusion : leur difficulté à gérer des motifs répétitifs complexes avec des contrastes marqués. Lors d'une tentative de reconstruction, ces motifs créent une confusion sémantique qui dégrade significativement le résultat.
 
 ### 2. Watermark Visible avec Semantic Steering
 
-Un watermark textuel est appliqué avec des instructions de "steering" destinées à perturber les modèles IA. Si un modèle tente de supprimer le watermark, les instructions encodées provoquent une dégradation de l'image reconstruite.
+Un watermark textuel contenant des instructions de "steering" est appliqué sur le document. Si un modèle IA tente de supprimer ce watermark, les instructions encodées interfèrent avec le processus de génération et provoquent des artefacts visibles dans l'image reconstruite.
 
 ### 3. Encodage TrustMark
 
-TrustMark encode un message invisible dans l'image, permettant de vérifier son authenticité. Ce watermark résiste aux transformations courantes (compression, redimensionnement, capture d'écran).
+TrustMark encode un message invisible dans le document, permettant de vérifier son authenticité même après des transformations (compression, redimensionnement, impression/scan). Cette couche permet de détecter si un document a été altéré.
 
 ## Prérequis
 
@@ -67,7 +82,7 @@ docker-compose -f docker/docker-compose.yml down
 ## Architecture
 
 ```
-orangeshield/
+OrangeShield/
 ├── app.py                      # Point d'entrée Flask
 ├── config.py                   # Configuration centralisée
 ├── requirements.txt            # Dépendances Python
@@ -106,11 +121,11 @@ orangeshield/
 ## Utilisation
 
 1. Ouvrir l'interface web
-2. Glisser-déposer ou sélectionner une image (formats : JPG, PNG, WebP, GIF)
-3. Sélectionner un preset de document ou personnaliser les paramètres
-4. Ajuster la densité et l'opacité du motif zèbre
+2. Importer un document (formats : JPG, PNG, WebP, GIF)
+3. Sélectionner le type de document ou personnaliser les paramètres
+4. Ajuster la densité et l'opacité du motif zèbre selon le besoin
 5. Appliquer la protection
-6. Télécharger l'image protégée
+6. Télécharger le document protégé
 
 ### Presets disponibles
 
@@ -138,9 +153,6 @@ pytest tests/unit/
 
 # Tests d'intégration
 pytest tests/integration/
-
-# Test spécifique
-pytest tests/unit/test_zebra_service.py -v
 ```
 
 ## Stack technique
