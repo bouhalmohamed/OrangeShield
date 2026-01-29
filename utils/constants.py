@@ -15,9 +15,10 @@ shift orientation, and break accurate regeneration.
 DEFAULT_TRUSTMARK_SECRET = "OrangeShield Protected Content - Unauthorized use prohibited"
 
 # Paramètres du motif zèbre
-ZEBRA_GRID_SPACING = 50      # Espacement de la grille en pixels
-ZEBRA_SIZE = 30              # Taille des zèbres en pixels
-ZEBRA_OPACITY = 0.8          # Multiplicateur d'opacité (0.0 - 1.0)
+ZEBRA_GRID_SPACING = 25      # Espacement de la grille en pixels (plus petit = plus dense)
+ZEBRA_SIZE = 35              # Taille des zèbres en pixels
+ZEBRA_OPACITY = 1.0          # Multiplicateur d'opacité (0.0 - 1.0)
+ZEBRA_DUPLICATES = 2         # Nombre de zèbres par position
 
 # Document type presets
 DOCUMENT_PRESETS = {

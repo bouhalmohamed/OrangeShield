@@ -18,7 +18,8 @@ from utils.constants import (
     DEFAULT_TRUSTMARK_SECRET,
     ZEBRA_GRID_SPACING,
     ZEBRA_SIZE,
-    ZEBRA_OPACITY
+    ZEBRA_OPACITY,
+    ZEBRA_DUPLICATES
 )
 from config import Config
 
@@ -51,7 +52,8 @@ class WatermarkController:
                 enable_zebra=zebra_config['enable_zebra'],
                 zebra_spacing=zebra_config['spacing'],
                 zebra_size=zebra_config['size'],
-                zebra_opacity=zebra_config['opacity']
+                zebra_opacity=zebra_config['opacity'],
+                zebra_duplicates=zebra_config['duplicates']
             )
             
             response_data = self._generate_response_data(
@@ -115,6 +117,7 @@ class WatermarkController:
         
         try:
             spacing = int(request.form.get('zebra_spacing', ZEBRA_GRID_SPACING))
+            spacing = max(10, min(100, spacing))  # Limiter entre 10 et 100
         except ValueError:
             spacing = ZEBRA_GRID_SPACING
         
@@ -129,11 +132,18 @@ class WatermarkController:
         except ValueError:
             opacity = ZEBRA_OPACITY
         
+        try:
+            duplicates = int(request.form.get('zebra_duplicates', ZEBRA_DUPLICATES))
+            duplicates = max(1, min(5, duplicates))  # Limiter entre 1 et 5
+        except ValueError:
+            duplicates = ZEBRA_DUPLICATES
+        
         return {
             'enable_zebra': enable_zebra,
             'spacing': spacing,
             'size': size,
-            'opacity': opacity
+            'opacity': opacity,
+            'duplicates': duplicates
         }
     
     def _generate_response_data(

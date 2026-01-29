@@ -186,18 +186,20 @@ class ZebraService:
         return placements
     
     def apply_zebra_pattern(self, image: Image.Image, 
-                            grid_spacing: int = 50,
-                            zebra_size: int = 30,
+                            grid_spacing: int = 25,
+                            zebra_size: int = 35,
                             opacity_multiplier: float = 1.0,
+                            duplicates: int = 2,
                             seed: Optional[int] = None) -> Image.Image:
         """
         Applique le motif de zèbres sur l'image.
         
         Args:
             image: Image PIL en entrée
-            grid_spacing: Espacement de la grille en pixels
+            grid_spacing: Espacement de la grille en pixels (plus petit = plus dense)
             zebra_size: Taille des zèbres
             opacity_multiplier: Multiplicateur d'opacité
+            duplicates: Nombre de zèbres par position de grille
             seed: Seed pour reproductibilité
         
         Returns:
@@ -210,7 +212,7 @@ class ZebraService:
         
         placements = self._calculate_grid_placements(
             width, height, grid_spacing, zebra_size, 
-            duplicates=1, seed=seed
+            duplicates=duplicates, seed=seed
         )
         
         result = base_img.copy()

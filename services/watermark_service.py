@@ -13,7 +13,8 @@ from utils.constants import (
     DEFAULT_TRUSTMARK_SECRET,
     ZEBRA_GRID_SPACING,
     ZEBRA_SIZE,
-    ZEBRA_OPACITY
+    ZEBRA_OPACITY,
+    ZEBRA_DUPLICATES
 )
 
 
@@ -34,7 +35,8 @@ class WatermarkService:
         enable_zebra: bool = True,
         zebra_spacing: int = ZEBRA_GRID_SPACING,
         zebra_size: int = ZEBRA_SIZE,
-        zebra_opacity: float = ZEBRA_OPACITY
+        zebra_opacity: float = ZEBRA_OPACITY,
+        zebra_duplicates: int = ZEBRA_DUPLICATES
     ) -> Image.Image:
         """
         Applique la protection complète sur l'image :
@@ -57,7 +59,8 @@ class WatermarkService:
                 result,
                 grid_spacing=zebra_spacing,
                 zebra_size=zebra_size,
-                opacity_multiplier=zebra_opacity
+                opacity_multiplier=zebra_opacity,
+                duplicates=zebra_duplicates
             )
         
         # Étape 2: Appliquer le watermark visible avec semantic steering

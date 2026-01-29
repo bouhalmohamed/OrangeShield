@@ -31,9 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const zebraControls = document.getElementById('zebraControls');
     const zebraSpacing = document.getElementById('zebraSpacing');
     const zebraSize = document.getElementById('zebraSize');
+    const zebraDuplicates = document.getElementById('zebraDuplicates');
     const zebraOpacity = document.getElementById('zebraOpacity');
     const zebraSpacingValue = document.getElementById('zebraSpacingValue');
     const zebraSizeValue = document.getElementById('zebraSizeValue');
+    const zebraDuplicatesValue = document.getElementById('zebraDuplicatesValue');
     const zebraOpacityValue = document.getElementById('zebraOpacityValue');
 
     let selectedFile = null;
@@ -91,13 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (zebraSpacing) {
         zebraSpacing.addEventListener('input', () => {
-            zebraSpacingValue.textContent = zebraSpacing.value;
+            zebraSpacingValue.textContent = zebraSpacing.value + 'px';
         });
     }
 
     if (zebraSize) {
         zebraSize.addEventListener('input', () => {
-            zebraSizeValue.textContent = zebraSize.value;
+            zebraSizeValue.textContent = zebraSize.value + 'px';
+        });
+    }
+
+    if (zebraDuplicates) {
+        zebraDuplicates.addEventListener('input', () => {
+            zebraDuplicatesValue.textContent = zebraDuplicates.value + 'x';
         });
     }
 
@@ -234,9 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Zebra configuration
         formData.append('enable_zebra', enableZebra ? enableZebra.checked : true);
-        formData.append('zebra_spacing', zebraSpacing ? zebraSpacing.value : 50);
-        formData.append('zebra_size', zebraSize ? zebraSize.value : 30);
-        formData.append('zebra_opacity', zebraOpacity ? (zebraOpacity.value / 100) : 0.8);
+        formData.append('zebra_spacing', zebraSpacing ? zebraSpacing.value : 25);
+        formData.append('zebra_size', zebraSize ? zebraSize.value : 35);
+        formData.append('zebra_duplicates', zebraDuplicates ? zebraDuplicates.value : 2);
+        formData.append('zebra_opacity', zebraOpacity ? (zebraOpacity.value / 100) : 1.0);
         
         if (selectedDocumentType === 'custom') {
             formData.append('custom_watermark', customWatermark ? customWatermark.value : '');
