@@ -26,6 +26,16 @@ def apply_watermark():
     return watermark_controller.process_watermark_request()
 
 
+@main_bp.route('/verify-trustmark', methods=['GET', 'POST'])
+def verify_trustmark():
+    """Vérifie et extrait le message TrustMark d'une image."""
+    from flask import request, redirect, url_for
+    if request.method == 'GET':
+        # Rediriger vers la page principale section verify
+        return redirect(url_for('main.index') + '#verify')
+    return watermark_controller.verify_trustmark_request()
+
+
 @main_bp.route('/download/<filename>')
 def download_file(filename):
     """Télécharge l'image watermarkée."""

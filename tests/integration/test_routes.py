@@ -160,3 +160,36 @@ class TestRoutes:
         assert isinstance(json_data['success'], bool)
         assert isinstance(json_data['trustmark_applied'], bool)
         assert isinstance(json_data['watermark_type'], str)
+    
+    def test_verify_trustmark_no_file(self, client):
+        """Test verify trustmark route without file upload."""
+        response = client.post('/verify-trustmark')
+        
+        # Either 400 (no file) or 503 (trustmark not available)
+        assert response.status_code in [400, 503]
+    
+    def test_verify_trustmark_valid_image(self, client, test_image_bytes):
+        """Test verify trustmark route with valid image."""
+        data = {
+            'image': (BytesIO(test_image_bytes), 'test.jpg')
+        }
+        response = client.post('/verify-trustmark', data=data, content_type='multipart/form-data')
+        
+        # Should return 200 or 503 if TrustMark not available
+        assert response.status_code in [200, 503]
+        json_data = response.get_json()
+        assert 'success' in json_data
+    
+    def test_verify_trustmark_response_structure(self, client, test_image_bytes):
+        """Test that verify response has correct structure."""
+        data = {
+            'image': (BytesIO(test_image_bytes), 'test.jpg')
+        }
+        response = client.post('/verify-trustmark', data=data, content_type='multipart/form-data')
+        
+        json_data = response.get_json()
+        
+        # If TrustMark available, should have these keys
+        if response.status_code == 200:
+            assert 'success' in json_data
+            assert 'verified' in json_data or 'trustmark_found' in json_data

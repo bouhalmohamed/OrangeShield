@@ -335,4 +335,94 @@ document.addEventListener('DOMContentLoaded', () => {
         resetUploader();
         resultData = null;
     });
+
+    // ============================================
+    // TrustMark Verification
+    // ============================================
+    const verifyUploader = document.getElementById('verifyUploader');
+    const verifyFileInput = document.getElementById('verifyFileInput');
+    const verifyIdle = document.getElementById('verifyIdle');
+    const verifyResult = document.getElementById('verifyResult');
+    const verifyStatus = document.getElementById('verifyStatus');
+    const verifyIcon = document.getElementById('verifyIcon');
+    const verifyText = document.getElementById('verifyText');
+    const verifyMessage = document.getElementById('verifyMessage');
+    const verifyResetBtn = document.getElementById('verifyResetBtn');
+
+    if (verifyUploader) {
+        verifyUploader.addEventListener('click', () => {
+            verifyFileInput.click();
+        });
+
+        verifyUploader.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            verifyUploader.style.borderColor = 'var(--orange)';
+        });
+
+        verifyUploader.addEventListener('dragleave', () => {
+            verifyUploader.style.borderColor = '';
+        });
+
+        verifyUploader.addEventListener('drop', (e) => {
+            e.preventDefault();
+            verifyUploader.style.borderColor = '';
+            if (e.dataTransfer.files.length) {
+                verifyTrustMark(e.dataTransfer.files[0]);
+            }
+        });
+
+        verifyFileInput.addEventListener('change', () => {
+            if (verifyFileInput.files.length) {
+                verifyTrustMark(verifyFileInput.files[0]);
+            }
+        });
+
+        if (verifyResetBtn) {
+            verifyResetBtn.addEventListener('click', () => {
+                verifyResult.classList.remove('active');
+                verifyUploader.style.display = 'flex';
+                verifyFileInput.value = '';
+            });
+        }
+    }
+
+    async function verifyTrustMark(file) {
+        const valid = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!valid.includes(file.type)) {
+            alert('Please upload a valid image file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        verifyUploader.style.display = 'none';
+
+        try {
+            const response = await fetch('/verify-trustmark', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.trustmark_found) {
+                verifyIcon.textContent = '✓';
+                verifyIcon.className = 'verify-icon success';
+                verifyText.textContent = 'TrustMark verified';
+                verifyMessage.textContent = data.message;
+            } else {
+                verifyIcon.textContent = '✗';
+                verifyIcon.className = 'verify-icon failure';
+                verifyText.textContent = 'No TrustMark found';
+                verifyMessage.textContent = data.info || 'This image does not contain a valid TrustMark watermark.';
+            }
+
+            verifyResult.classList.add('active');
+
+        } catch (err) {
+            alert('Error verifying image: ' + err.message);
+            verifyUploader.style.display = 'flex';
+        }
+    }
 });

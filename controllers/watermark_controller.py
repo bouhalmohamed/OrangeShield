@@ -10,6 +10,7 @@ import uuid
 import os
 from typing import Dict, Tuple, Optional
 from services.watermark_service import WatermarkService
+from services.trustmark_service import TrustMarkService
 from utils.file_utils import is_allowed_file
 from utils.constants import (
     DOCUMENT_PRESETS, 
@@ -29,6 +30,7 @@ class WatermarkController:
     
     def __init__(self):
         self.watermark_service = WatermarkService()
+        self.trustmark_service = TrustMarkService()
     
     def process_watermark_request(self) -> Tuple[Dict, int]:
         """Traite une requête d'application de watermark."""
@@ -65,6 +67,51 @@ class WatermarkController:
             
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+    
+    def verify_trustmark_request(self) -> Tuple[Dict, int]:
+        """Vérifie et extrait le message TrustMark d'une image."""
+        try:
+            # Vérifier si TrustMark est disponible
+            if not TrustMarkService.is_available():
+                return jsonify({
+                    'success': False,
+                    'error': 'TrustMark service not available',
+                    'trustmark_available': False
+                }), 503
+            
+            # Valider l'upload
+            validation_error = self._validate_upload()
+            if validation_error:
+                return validation_error
+            
+            file = request.files['image']
+            input_image = Image.open(file.stream)
+            
+            # Décoder le TrustMark
+            result = self.trustmark_service.decode_watermark(input_image)
+            
+            if result.get('found'):
+                return jsonify({
+                    'success': True,
+                    'verified': True,
+                    'trustmark_found': True,
+                    'message': result.get('message'),
+                    'confidence': result.get('confidence')
+                }), 200
+            else:
+                return jsonify({
+                    'success': True,
+                    'verified': False,
+                    'trustmark_found': False,
+                    'message': None,
+                    'info': result.get('error') or 'No TrustMark detected in this image'
+                }), 200
+                
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
     
     def _validate_upload(self) -> Optional[Tuple[Dict, int]]:
         """Valide le fichier uploadé."""

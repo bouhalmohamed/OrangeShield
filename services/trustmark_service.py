@@ -63,22 +63,39 @@ class TrustMarkService:
             return image
     
     @staticmethod
-    def decode_watermark(image: Image.Image) -> Optional[str]:
+    def decode_watermark(image: Image.Image) -> dict:
         """
         Décode le message TrustMark d'une image.
         
         Returns:
-            Le message décodé ou None si échec
+            Dict avec 'found', 'message', 'confidence'
         """
         if not TRUSTMARK_AVAILABLE or _trustmark_instance is None:
-            return None
+            return {'found': False, 'message': None, 'confidence': None, 'error': 'TrustMark not available'}
         
         try:
             if image.mode != 'RGB':
                 image = image.convert('RGB')
             
-            decoded = _trustmark_instance.decode(image)
-            return decoded
+            # TrustMark decode retourne (message, is_watermarked, confidence)
+            result = _trustmark_instance.decode(image)
+            
+            if isinstance(result, (list, tuple)) and len(result) >= 2:
+                message = result[0] if result[0] else None
+                is_watermarked = result[1] if len(result) > 1 else False
+                confidence = result[2] if len(result) > 2 else None
+                
+                return {
+                    'found': bool(is_watermarked),
+                    'message': message,
+                    'confidence': confidence
+                }
+            else:
+                return {
+                    'found': bool(result),
+                    'message': str(result) if result else None,
+                    'confidence': None
+                }
         except Exception as e:
             logger.error(f"Erreur décodage TrustMark: {e}")
-            return None
+            return {'found': False, 'message': None, 'confidence': None, 'error': str(e)}

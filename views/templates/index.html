@@ -18,6 +18,7 @@
             </a>
             <div class="nav-menu">
                 <a href="#demo">Demo</a>
+                <a href="#verify">Verify</a>
                 <a href="#how">How it works</a>
             </div>
         </div>
@@ -217,6 +218,34 @@
                         <h3>Download</h3>
                         <p>Get your protected image. AI models will fail to cleanly remove the watermark.</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="verify" id="verify">
+            <div class="verify-inner">
+                <h2>Verify TrustMark</h2>
+                <p class="verify-subtitle">Check if an image contains a valid TrustMark watermark</p>
+                
+                <div class="verify-upload" id="verifyUploader">
+                    <input type="file" id="verifyFileInput" accept="image/*" hidden>
+                    <div class="verify-idle" id="verifyIdle">
+                        <div class="uploader-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <p class="uploader-text">Drop image to verify or <span>browse</span></p>
+                    </div>
+                </div>
+                
+                <div class="verify-result" id="verifyResult">
+                    <div class="verify-status" id="verifyStatus">
+                        <span class="verify-icon" id="verifyIcon">✓</span>
+                        <span class="verify-text" id="verifyText">TrustMark verified</span>
+                    </div>
+                    <div class="verify-message" id="verifyMessage"></div>
+                    <button class="btn-secondary" id="verifyResetBtn">Verify another</button>
                 </div>
             </div>
         </section>
